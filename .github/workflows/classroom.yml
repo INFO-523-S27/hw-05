@@ -1,0 +1,68 @@
+name: Autograding Tests
+'on':
+  - workflow_dispatch
+  - repository_dispatch
+
+permissions:
+  checks: write
+  actions: read
+  contents: read
+
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: pytest
+        id: pytest
+        uses: classroom-resources/autograding-python-grader@v1
+        continue-on-error: true
+        with:
+          entryPoint: test_*.py
+          timeout: 10
+          max-score: 80
+          setup-command: |
+            pip install -r requirements.txt
+            pip install seaborn
+
+      - name: pylint ds.py (partial credit)
+        id: pylint_ds_py
+        uses: classroom-resources/autograding-command-grader@v1
+        continue-on-error: true
+        with:
+          test-name: "pylint_ds_py"
+          timeout: 10
+          max-score: 10
+          setup-command: |
+            pip install -r requirements.txt
+            pip install seaborn
+          command: |
+            # Run pylint and extract numeric score
+            SCORE=$(pylint ds.py --ignored-modules=tensorflow --score=y 2>&1 | \
+                    grep -Po '(?<=Your code has been rated at )\d+\.\d+' || echo 0)
+            echo "Raw pylint score: $SCORE"
+            # Scale to 10-point rubric (already 0–10 scale from pylint)
+            MAX_SCORE=10
+            # Write JSON result for autograding reporter
+            echo "{\"version\":1,\"status\":\"pass\",\"tests\":[{\"name\":\"pylint_ds_py\",\"score\":$SCORE,\"max_score\":$MAX_SCORE,\"message\":\"Pylint quality score: $SCORE / $MAX_SCORE\"}]}" > ./autograding_output/results.json
+            cat ./autograding_output/results.json
+            exit 0
+
+      - name: Autograding Reporter
+        uses: classroom-resources/autograding-grading-reporter@v1
+        continue-on-error: true
+        env:
+          PYTEST_RESULTS: "${{steps.pytest.outputs.result}}"
+          PYLINT_DS_PY_RESULTS: "${{steps.pylint_ds_py.outputs.result}}"
+        with:
+          runners: pytest,pylint_ds_py
+
+      - name: Print summary (debugging only)
+        if: always()
+        run: |
+          echo "==== Autograding Summary ===="
+          echo "Pytest results: ${{ steps.pytest.outputs.result }}"
+          echo "Pylint results: ${{ steps.pylint_ds_py.outputs.result }}"
