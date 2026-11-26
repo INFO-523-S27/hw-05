@@ -67,17 +67,13 @@ Install all required packages with:
 
 ```bash
 pip install -r requirements.txt
-````
+```
 
 ---
 
 ## Check Out the Starter Code
 
-Once you accept the assignment, GitHub Classroom will create your repository at:
-
-```
-https://github.com/INFO-511-S25/hw-05-clustering-<your-username>
-```
+Open the assignment link in D2L and accept it in Classroom50. Open your assigned repository in the INFO-523-S27 organization.
 
 Your repository includes:
 
@@ -88,7 +84,7 @@ Your repository includes:
 * `requirements.txt`
 * `.gitignore`
 
-A **`feedback` branch and pull request** will also be created automatically for grading.
+Leave the feedback pull request open so the instructional team can comment on your work.
 
 ---
 
@@ -110,9 +106,11 @@ This gives you a fully configured Python environment with all dependencies pre-i
 
 If working locally:
 
+In your assigned repository, select **Code → HTTPS** and copy the clone URL. Replace `PASTE_CLONE_URL_HERE` with that URL.
+
 ```bash
-git clone https://github.com/INFO-511-S25/hw-05-clustering-<your-username>.git
-cd hw-05-clustering-<your-username>
+git clone PASTE_CLONE_URL_HERE hw-05
+cd hw-05
 ```
 
 All work must be done in the `main` branch.
